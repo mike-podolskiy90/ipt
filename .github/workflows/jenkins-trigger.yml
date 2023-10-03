@@ -13,7 +13,9 @@ jobs:
     steps:
       - name: Extract Branch Name
         id: extract_branch
-        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+        run: |
+          BRANCH_NAME=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.number }}" | jq -r '.head.ref')
+          echo "::set-output name=branch::$BRANCH_NAME"
 
       - name: Trigger Jenkins Job
         run: |
