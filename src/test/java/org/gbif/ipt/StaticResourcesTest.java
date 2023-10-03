@@ -32,6 +32,10 @@ public class StaticResourcesTest {
     fail("Temp test that always fail");
   }
 
+  @Test
+  public void tempTest2() throws Exception {
+    assertTrue(true);
+  }
   
 
   /**
