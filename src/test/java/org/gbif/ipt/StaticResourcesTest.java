@@ -27,6 +27,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class StaticResourcesTest {
 
+  @Test
+  public void tempTest() throws Exception {
+    fail("Temp test that always fail");
+  }
+
   /**
    * Tomcat converts static resources from the system encoding to UTF-8.  The system
    * encoding on Linux is usually UTF-8, but not so on Windows, where we may have
