@@ -11,7 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Extract Branch Name
+        id: extract_branch
+        run: echo "::set-output name=branch::${GITHUB_REF#refs/heads/}"
+
       - name: Trigger Jenkins Job
         run: |
+          BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
           curl -X POST -u "jenkins_username:jenkins_api_token" \
-          "https://builds.gbif.org/job/ipt/buildWithParameters?token=your_token&PARAMETER_NAME=$GITHUB_PR_NUMBER"
+          "https://builds.gbif.org/job/ipt-pr/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME"
