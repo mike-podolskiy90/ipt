@@ -32,6 +32,11 @@ public class StaticResourcesTest {
     fail("Temp test that always fail");
   }
 
+  @Test
+  public void tempTest2() throws Exception {
+    assertTrue(true);
+  }
+
   /**
    * Tomcat converts static resources from the system encoding to UTF-8.  The system
    * encoding on Linux is usually UTF-8, but not so on Windows, where we may have
