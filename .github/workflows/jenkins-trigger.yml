@@ -20,3 +20,8 @@ jobs:
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
           curl -X POST -u "jenkins_username:jenkins_api_token" \
           "https://builds.gbif.org/job/ipt-pr/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME"
+
+          if [ "$RESPONSE_CODE" -ne 201 ]; then
+            echo "Failed to trigger Jenkins job. HTTP Response Code: $RESPONSE_CODE"
+            exit 1
+          fi
