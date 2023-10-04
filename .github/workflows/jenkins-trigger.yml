@@ -67,16 +67,16 @@ jobs:
           QUEUE_NUMBER="${{ steps.trigger_jenkins.outputs.queue_number }}"
 
           while true; do
-            BUILD_STATUS=$(curl -s "$JENKINS_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.executable.result')
-            echo "Build status is $BUILD_STATUS"
-            if [[ "$BUILD_STATUS" == "SUCCESS" ]]; then
-              echo "Jenkins job has succeeded."
-              break
-            elif [[ "$BUILD_STATUS" == "FAILURE" ]]; then
+            JOB_STATUS=$(curl -s "$JENKINS_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.task.color')
+            echo "Job status is $JOB_STATUS"
+            if [[ "$JOB_STATUS" == "red" ]]; then
               echo "Jenkins job has failed."
+              break
+            elif [[ "$JOB_STATUS" == "green" ]]; then
+              echo "Jenkins job has succeeded."
               exit 1
             else
-              echo "Jenkins job is still running..."
-              sleep 60  # Sleep for 60 seconds before checking again
+              echo "Jenkins job is still running or in an unknown state..."
+              sleep 30  # Sleep for 30 seconds before checking again
             fi
           done
