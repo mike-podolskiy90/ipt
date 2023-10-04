@@ -72,7 +72,7 @@ jobs:
             if [[ "$JOB_STATUS" == "red" ]]; then
               echo "Jenkins job has failed."
               exit 1
-            elif [[ "$JOB_STATUS" == "green" ]]; then
+            elif [[ "$JOB_STATUS" == "blue" ]]; then
               echo "Jenkins job has succeeded."
               exit 0
             else
