@@ -71,10 +71,10 @@ jobs:
             echo "Job status is $JOB_STATUS"
             if [[ "$JOB_STATUS" == "red" ]]; then
               echo "Jenkins job has failed."
-              break
+              exit 1
             elif [[ "$JOB_STATUS" == "green" ]]; then
               echo "Jenkins job has succeeded."
-              exit 1
+              exit 0
             else
               echo "Jenkins job is still running or in an unknown state..."
               sleep 30  # Sleep for 30 seconds before checking again
