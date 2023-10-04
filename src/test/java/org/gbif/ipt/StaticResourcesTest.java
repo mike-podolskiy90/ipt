@@ -29,8 +29,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class StaticResourcesTest {
 
   @Test
-  void tempTest() {
-    assertTrue(true);
+  void tempTestFail() {
+    assertTrue(false);
   }
 
   /**
