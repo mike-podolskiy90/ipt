@@ -68,6 +68,7 @@ jobs:
 
           while true; do
             BUILD_STATUS=$(curl -s "$JENKINS_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.executable.result')
+            echo "Build status is $BUILD_STATUS"
             if [[ "$BUILD_STATUS" == "SUCCESS" ]]; then
               echo "Jenkins job has succeeded."
               break
