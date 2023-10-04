@@ -29,7 +29,7 @@ public class StaticResourcesTest {
 
   @Test
   public void tempTest() throws Exception {
-    fail("Temp test that always fail!!!!");
+    //fail("Temp test that always fail!!!!!");
   }
 
   @Test
