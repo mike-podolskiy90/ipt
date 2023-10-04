@@ -75,8 +75,11 @@ jobs:
             elif [[ "$JOB_STATUS" == "blue" ]]; then
               echo "Jenkins job has succeeded."
               exit 0
-            else
-              echo "Jenkins job is still running or in an unknown state..."
+            elif [[ "$JOB_STATUS" == "blue_anime" || "$JOB_STATUS" == "red_anime" ]]; then
+              echo "Jenkins job is still running..."
               sleep 30  # Sleep for 30 seconds before checking again
+            else
+              echo "Jenkins job is in an unknown state $JOB_STATUS"
+              exit 1
             fi
           done
