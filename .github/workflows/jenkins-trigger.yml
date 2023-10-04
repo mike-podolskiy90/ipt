@@ -10,27 +10,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      JENKINS_USERNAME: "${{ secrets.JENKINS_USERNAME }}"
+      JENKINS_API_TOKEN: "${{ secrets.JENKINS_API_TOKEN }}"
+      JENKINS_JOB_URL: "https://builds.gbif.org/ipt-pr"
+
     steps:
       - name: Extract Branch Name
         id: extract_branch
         run: |
-          BRANCH_NAME=$(curl -s "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${{ github.event.number }}" | jq -r '.head.ref')
+          BRANCH_NAME=$(jq -r '.pull_request.head.ref' $GITHUB_EVENT_PATH)
           echo "::set-output name=branch::$BRANCH_NAME"
 
       - name: Trigger Jenkins Job
+        id: trigger_jenkins
         run: |
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
-
+          
           if [[ "$BRANCH_NAME" == renovate* ]]; then
             echo "Skipping workflow execution for branch starting with 'renovate'."
             exit 0
           fi
           
-          JENKINS_USERNAME="${{ secrets.JENKINS_USERNAME }}"
-          JENKINS_API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
-          RESPONSE_CODE=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -o /dev/null -w "%{http_code}" "https://builds.gbif.org/job/ipt-pr/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
-
-          if [ "$RESPONSE_CODE" -ne 201 ]; then
+          RESPONSE_CODE=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -o /dev/null -w "%{http_code}" "$JENKINS_JOB_URL/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
+          
+          if [[ "$RESPONSE_CODE" -ne 201 ]]; then
             echo "Failed to trigger Jenkins job. HTTP Response Code: $RESPONSE_CODE"
             exit 1
           fi
@@ -45,18 +49,17 @@ jobs:
             exit 0
           fi
 
-          JENKINS_USERNAME="${{ secrets.JENKINS_USERNAME }}"
-          JENKINS_API_TOKEN="${{ secrets.JENKINS_API_TOKEN }}"
-        
-          BUILD_QUEUE_NUMBER=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -o /dev/null -w "%{http_code}" "https://builds.gbif.org/job/ipt-pr/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
-          echo "$BUILD_QUEUE_NUMBER"
+          # Extract the queue number from the response headers
+          QUEUE_NUMBER=$(curl -I -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s "$JENKINS_JOB_URL/lastBuild/api/json" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1/')
+          
+          echo "Jenkins job queued with queue number: $QUEUE_NUMBER"
 
           while true; do
-            BUILD_STATUS=$(curl -s "https://builds.gbif.org/queue/item/$BUILD_QUEUE_NUMBER/api/json" | jq -r '.executable.result')
-            if [ "$BUILD_STATUS" == "SUCCESS" ]; then
+            BUILD_STATUS=$(curl -s "$JENKINS_JOB_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.executable.result')
+            if [[ "$BUILD_STATUS" == "SUCCESS" ]]; then
               echo "Jenkins job has succeeded."
               break
-            elif [ "$BUILD_STATUS" == "FAILURE" ]; then
+            elif [[ "$BUILD_STATUS" == "FAILURE" ]]; then
               echo "Jenkins job has failed."
               exit 1
             else
