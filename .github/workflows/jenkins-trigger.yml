@@ -31,11 +31,24 @@ jobs:
             echo "Skipping workflow execution for branch starting with 'renovate'."
             exit 0
           fi
-          
-          RESPONSE_CODE=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -o /dev/null -w "%{http_code}" "$JENKINS_JOB_URL/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
-          
-          if [[ "$RESPONSE_CODE" -ne 201 ]]; then
-            echo "Failed to trigger Jenkins job. HTTP Response Code: $RESPONSE_CODE"
+
+          # Trigger the Jenkins job and capture the response headers
+          RESPONSE_HEADERS=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -I -D - "$JENKINS_JOB_URL/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
+
+          # Extract the queue number from the response headers
+          QUEUE_NUMBER=$(echo "$RESPONSE_HEADERS" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1')
+
+          # Set QUEUE_NUMBER as an output variable
+          echo "::set-output name=queue_number::$QUEUE_NUMBER"
+
+          # Extract the HTTP response status code
+          HTTP_RESPONSE_STATUS=$(echo "$RESPONSE_HEADERS" | grep -i "HTTP/" | awk '{print $2}')
+
+          echo "Jenkins job queued with queue number: $QUEUE_NUMBER"
+          echo "HTTP Response Status: $HTTP_RESPONSE_STATUS"
+
+          if [[ "HTTP_RESPONSE_STATUS" -ne 201 ]]; then
+            echo "Failed to trigger Jenkins job. HTTP Response Code: HTTP_RESPONSE_STATUS"
             exit 1
           fi
 
@@ -49,14 +62,8 @@ jobs:
             exit 0
           fi
 
-          # Capture the full response from Jenkins and display it for debugging
-          RESPONSE_HEADERS=$(curl -I -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s "$JENKINS_JOB_URL/lastBuild/api/json")
-          echo "Response Headers:"
-          echo "$RESPONSE_HEADERS"
-
-          # Extract the queue number from the response headers
-          QUEUE_NUMBER=$(echo "$RESPONSE_HEADERS" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1/')
-          echo "Jenkins job queued with queue number: $QUEUE_NUMBER"
+          # Access the queue_number output from the previous step
+          QUEUE_NUMBER="${{ steps.capture_queue_number.outputs.queue_number }}"
 
           while true; do
             BUILD_STATUS=$(curl -s "$JENKINS_JOB_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.executable.result')
