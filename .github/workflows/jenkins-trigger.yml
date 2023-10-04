@@ -36,7 +36,7 @@ jobs:
           RESPONSE_HEADERS=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -I -D - "$JENKINS_JOB_URL/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
 
           # Extract the queue number from the response headers
-          QUEUE_NUMBER=$(echo "$RESPONSE_HEADERS" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1')
+          QUEUE_NUMBER=$(echo "$RESPONSE_HEADERS" | grep -i "Location: " | sed -E 's/Location: .*\/([0-9]*)\/.*/\1/')
 
           # Set QUEUE_NUMBER as an output variable
           echo "::set-output name=queue_number::$QUEUE_NUMBER"
@@ -47,7 +47,7 @@ jobs:
           echo "Jenkins job queued with queue number: $QUEUE_NUMBER"
           echo "HTTP Response Status: $HTTP_RESPONSE_STATUS"
 
-          if [[ "HTTP_RESPONSE_STATUS" -ne 201 ]]; then
+          if [[ "$HTTP_RESPONSE_STATUS" -ne 201 ]]; then
             echo "Failed to trigger Jenkins job. HTTP Response Code: HTTP_RESPONSE_STATUS"
             exit 1
           fi
@@ -63,7 +63,7 @@ jobs:
           fi
 
           # Access the queue_number output from the previous step
-          QUEUE_NUMBER="${{ steps.capture_queue_number.outputs.queue_number }}"
+          QUEUE_NUMBER="${{ steps.trigger_jenkins.outputs.queue_number }}"
 
           while true; do
             BUILD_STATUS=$(curl -s "$JENKINS_JOB_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.executable.result')
