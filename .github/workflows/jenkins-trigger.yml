@@ -49,9 +49,13 @@ jobs:
             exit 0
           fi
 
+          # Capture the full response from Jenkins and display it for debugging
+          RESPONSE_HEADERS=$(curl -I -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s "$JENKINS_JOB_URL/lastBuild/api/json")
+          echo "Response Headers:"
+          echo "$RESPONSE_HEADERS"
+
           # Extract the queue number from the response headers
-          QUEUE_NUMBER=$(curl -I -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s "$JENKINS_JOB_URL/lastBuild/api/json" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1/')
-          
+          QUEUE_NUMBER=$(echo "$RESPONSE_HEADERS" | grep -i "Location: " | sed 's/Location: .*\/\([0-9]*\)\/.*$/\1/')
           echo "Jenkins job queued with queue number: $QUEUE_NUMBER"
 
           while true; do
