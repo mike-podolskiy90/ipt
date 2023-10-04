@@ -72,7 +72,7 @@ jobs:
             JOB_STATUS=$(curl -s "$JENKINS_URL/queue/item/$QUEUE_NUMBER/api/json" | jq -r '.task.color')
             
             echo "Job status is $JOB_STATUS"
-            if [[ "$JOB_STATUS" == "red" ]]; then
+            if [[ "$JOB_STATUS" == "red" || "$JOB_STATUS" == "yellow" ]]; then
               echo "Jenkins job has failed."
               echo "See more $JOB_URL"
               exit 1
@@ -80,7 +80,7 @@ jobs:
               echo "Jenkins job has succeeded."
               echo "See more $JOB_URL"
               exit 0
-            elif [[ "$JOB_STATUS" == "blue_anime" || "$JOB_STATUS" == "red_anime" ]]; then
+            elif [[ "$JOB_STATUS" == "blue_anime" || "$JOB_STATUS" == "red_anime" || "$JOB_STATUS" == "yellow_anime" ]]; then
               echo "Jenkins job is still running..."
               sleep 30  # Sleep for 30 seconds before checking again
             else
