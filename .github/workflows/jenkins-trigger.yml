@@ -28,3 +28,19 @@ jobs:
             echo "Failed to trigger Jenkins job. HTTP Response Code: $RESPONSE_CODE"
             exit 1
           fi
+
+      - name: Set Status Check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Use GitHub API to set status
+          status="success" # or "failure" based on your checks
+          curl -s -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${{ github.sha }}" \
+               -H "Authorization: token $GITHUB_TOKEN" \
+               -d "{
+                \"state\": \"$status\",
+                \"target_url\": \"https://your-ci-cd-url\",
+                \"description\": \"Your check description\",
+                \"context\": \"your-check-name\"
+             }"
+
