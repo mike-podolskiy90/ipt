@@ -33,7 +33,7 @@ public class StaticResourcesTest {
   }
 
   @Test
-  public void tempTest2() throws Exception {
+  public void tempTest22() throws Exception {
     assertTrue(true);
   }
   
