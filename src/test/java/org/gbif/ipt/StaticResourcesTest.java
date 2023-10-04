@@ -23,15 +23,9 @@ import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 public class StaticResourcesTest {
-
-  @Test
-  void tempTestFail() {
-    assertTrue(false);
-  }
 
   /**
    * Tomcat converts static resources from the system encoding to UTF-8.  The system
