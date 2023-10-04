@@ -29,18 +29,22 @@ jobs:
             exit 1
           fi
 
-      - name: Set Status Check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check Jenkins Job Status
+        id: check_jenkins_job
         run: |
-          # Use GitHub API to set status
-          status="success" # or "failure" based on your checks
-          curl -s -X POST "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${{ github.sha }}" \
-               -H "Authorization: token $GITHUB_TOKEN" \
-               -d "{
-                \"state\": \"$status\",
-                \"target_url\": \"https://your-ci-cd-url\",
-                \"description\": \"Your check description\",
-                \"context\": \"your-check-name\"
-             }"
+          BUILD_QUEUE_NUMBER=$(curl -X POST -u "$JENKINS_USERNAME:$JENKINS_API_TOKEN" -s -o /dev/null -w "%{http_code}" "https://builds.gbif.org/job/ipt-pr/buildWithParameters?token=github-token-test&BRANCH_NAME=$BRANCH_NAME")
+          echo "$BUILD_QUEUE_NUMBER"
 
+          while true; do
+            BUILD_STATUS=$(curl -s "https://builds.gbif.org/queue/item/$BUILD_QUEUE_NUMBER/api/json" | jq -r '.executable.result')
+            if [ "$BUILD_STATUS" == "SUCCESS" ]; then
+              echo "Jenkins job has succeeded."
+              break
+            elif [ "$BUILD_STATUS" == "FAILURE" ]; then
+              echo "Jenkins job has failed."
+              exit 1
+            else
+              echo "Jenkins job is still running..."
+              sleep 60  # Sleep for 60 seconds before checking again
+            fi
+          done
