@@ -21,7 +21,7 @@ jobs:
         run: |
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
 
-          if [[ "$BRANCH_NAME" == renovate* ]]: then
+          if [[ "$BRANCH_NAME" == renovate* ]]; then
             echo "Skipping workflow execution for branch starting with 'renovate'."
             exit 0
           fi
@@ -40,7 +40,7 @@ jobs:
         run: |
           BRANCH_NAME="${{ steps.extract_branch.outputs.branch }}"
 
-          if [[ "$BRANCH_NAME" == renovate* ]]: then
+          if [[ "$BRANCH_NAME" == renovate* ]]; then
             echo "Skipping workflow execution for branch starting with 'renovate'."
             exit 0
           fi
