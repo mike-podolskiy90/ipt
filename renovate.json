@@ -19,6 +19,10 @@
     {
       "matchPackageNames": ["com.google.guava:guava"],
       "automerge": false
+    },
+    {
+      "matchPackageNames": ["tomcat"],
+      "automerge": false
     }
   ],
   "prHourlyLimit": 20
