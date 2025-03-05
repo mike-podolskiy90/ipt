@@ -59,7 +59,7 @@
     <excel-streaming-reader.version>5.0.3</excel-streaming-reader.version>
     <freemarker.version>2.3.34</freemarker.version>
     <gson.version>2.12.1</gson.version>
-    <guava.version>20.0</guava.version>
+    <guava.version>33.4.0-jre</guava.version>
     <guice.version>4.2.3</guice.version>
     <httpclient.version>4.5.14</httpclient.version>
     <httpcore.version>4.4.16</httpcore.version>
