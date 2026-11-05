@@ -54,7 +54,7 @@
     <commons-io.version>2.22.0</commons-io.version>
     <commons-lang3.version>3.17.0</commons-lang3.version>
     <commons-collections4.version>4.4</commons-collections4.version>
-    <commons-validator.version>1.9.0</commons-validator.version>
+    <commons-validator.version>1.11.0</commons-validator.version>
     <commons-text.version>1.13.0</commons-text.version>
     <excel-streaming-reader.version>5.3.2</excel-streaming-reader.version>
     <freemarker.version>2.3.35</freemarker.version>
